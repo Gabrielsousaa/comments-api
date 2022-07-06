@@ -1,5 +1,6 @@
 package com.domain.comments.resources;
 
+import java.net.URI;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -9,10 +10,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.domain.comments.domain.User;
 import com.domain.comments.dto.UserDTO;
 import com.domain.comments.services.UserService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
 @RestController
 @RequestMapping(value = "/users")
@@ -33,6 +37,14 @@ public class UserResource {
   public ResponseEntity<UserDTO> findById(@PathVariable String id) {
     User obj = service.findById(id);
     return ResponseEntity.ok().body(new UserDTO(obj));
+  }
+
+  @PostMapping
+  public ResponseEntity<Void> inser(@RequestBody UserDTO objdto) {
+    User obj = service.fromDTO(objdto);
+    obj = service.create(obj);
+    URI uri = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(obj.getId()).toUri();
+    return ResponseEntity.created(uri).build();
   }
 
 }
